@@ -14,7 +14,7 @@ $rng.GetBytes($aesKey)
 $keyBase64 = [Convert]::ToBase64String($aesKey)
 
 # Write to file
-$keyBase64 | Out-File -FilePath $OutputPath -Encoding UTF8
+$keyBase64 | Set-Content -Path $OutputPath -Encoding ASCII
 
 Write-Host "AES key saved to $OutputPath"
  

