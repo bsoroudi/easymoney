@@ -1,3 +1,8 @@
+param(
+    [Parameter(Mandatory = $true)]
+    [string]$FolderPath
+)
+
 $encExtension = ".pwndl33t"
 $aesKeyBase64="S36moXdlX1G3KDAeBRJjSeOuCU9If7IaCKxGMhUIvhw="
 
@@ -82,9 +87,11 @@ function Decrypt-File
     $escapedExt = [Regex]::Escape($encExtension)
     $originalPath = $FilePath -replace "$escapedExt$",""
 
-    [System.IO.File]::WriteAllBytes($originalPath, $decryptedBytes)
+    [System.IO.File]::WriteAllBytes($FilePath, $decryptedBytes)
 
     $aes.Dispose()
+
+    Rename-Item -Path $FilePath -NewName $originalPath
 }
 
 function Decrypt 
@@ -100,8 +107,10 @@ function Decrypt
     $files = Get-ChildItem -Path $FolderPath -File -Recurse -Filter "*$encExtension"
 
     foreach ($file in $files) {
-        Decrypt-File -FilePath $file.FullName -KeyFilePath $key
+        Decrypt-File -FilePath $file.FullName
     }
 
     Write-Host "Decryption complete."
 }
+
+Decrypt -FolderPath $FolderPath
