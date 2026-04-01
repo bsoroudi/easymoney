@@ -288,7 +288,8 @@ function Set-DesktopWallpaper {
     Set-ItemProperty -Path 'HKCU:\Control Panel\Desktop' -Name WallpaperStyle -Value $vals.WallpaperStyle -ErrorAction Stop
     Set-ItemProperty -Path 'HKCU:\Control Panel\Desktop' -Name TileWallpaper   -Value $vals.Tile           -ErrorAction Stop
 
-    $source = @'
+    $source = 
+@'
 using System.Runtime.InteropServices;
 public static class NativeMethods {
     [DllImport("user32.dll", SetLastError = true)]
